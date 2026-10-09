@@ -82,8 +82,8 @@ function downloadOne(item) {
 function preview(item) {
   if (!item.output) return;
   const url = URL.createObjectURL(new Blob([item.output], { type: 'application/pdf' }));
-  const popup = window.open(url, '_blank', 'noopener,noreferrer');
-  if (!popup) downloadOne(item);
+  // With noopener, some browsers return null even when the preview opened.
+  window.open(url, '_blank', 'noopener,noreferrer');
   setTimeout(() => URL.revokeObjectURL(url), 300000);
 }
 
