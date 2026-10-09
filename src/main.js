@@ -16,7 +16,7 @@ let nextId = 1;
 
 const statuses = {
   pending: 'Ready to convert', working: 'Converting…',
-  complete: 'Converted · review required', error: 'Conversion failed'
+  complete: 'Converted · review required', error: 'Conversion failed', invalid: 'Duplicate filename'
 };
 const setMasterStatus = (message, type = '') => {
   el.masterStatus.textContent = message;
@@ -44,7 +44,7 @@ function addFiles(files) {
   for (const file of files) {
     if (!/\.pdf$/i.test(file.name)) continue;
     if (items.some(item => item.name.toLowerCase() === file.name.toLowerCase())) {
-      items.push({ id: nextId++, name: file.name, file, status: 'error',
+      items.push({ id: nextId++, name: file.name, file, status: 'invalid',
         error: 'Duplicate filename. Remove an earlier entry or rename this file; identical names must not overwrite each other.' });
     } else {
       items.push({ id: nextId++, name: file.name, file, status: 'pending', warnings: [] });
@@ -163,7 +163,7 @@ function button(label, handler, style = '', disabled = false) {
 function render() {
   const complete = items.filter(x => x.status === 'complete').length;
   const pending = items.filter(x => x.status === 'pending').length;
-  const failed = items.filter(x => x.status === 'error').length;
+  const failed = items.filter(x => x.status === 'error' || x.status === 'invalid').length;
   el.run.disabled = busy || !masterData || !(pending + failed);
   el.zip.disabled = busy || !complete;
   el.clear.disabled = busy || !items.length;
