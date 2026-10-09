@@ -30,7 +30,7 @@ test('clears master examples, moves entered text and checkboxes', async () => {
   const result = copyFields(original, master);
   assert.equal(result.transferred, 2);
   assert.equal(master.getForm().getTextField('Text Field 2').getText(), 'Specific teacher feedback');
-  assert.equal(master.getForm().getTextField('Text Field 109').getText(), '');
+  assert.equal(master.getForm().getTextField('Text Field 109').getText() ?? '', '');
   assert.equal(master.getForm().getCheckBox('Check Box 52').isChecked(), true);
   assert.equal(master.getForm().getCheckBox('Check Box 44').isChecked(), false);
   const reopened = await PDFDocument.load(await master.save());
@@ -41,8 +41,8 @@ test('moves blank source values over prefilled master values', async () => {
   const original = await fakeForm();
   const master = await fakeForm({ evidence: 'DO NOT COPY', oldDeclaration: true });
   copyFields(original, master);
-  assert.equal(master.getForm().getTextField('Text Field 2').getText(), '');
-  assert.equal(master.getForm().getTextField('Text Field 109').getText(), '');
+  assert.equal(master.getForm().getTextField('Text Field 2').getText() ?? '', '');
+  assert.equal(master.getForm().getTextField('Text Field 109').getText() ?? '', '');
   assert.equal(master.getForm().getCheckBox('Check Box 44').isChecked(), false);
 });
 
