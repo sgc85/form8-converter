@@ -1,0 +1,19 @@
+{
+  "name": "form8-converter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "pdf-lib": "1.17.1",
+    "jszip": "3.10.1"
+  },
+  "devDependencies": {
+    "vite": "6.3.5"
+  }
+}
