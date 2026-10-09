@@ -1,4 +1,4 @@
-import { PDFDocument, PDFTextField, PDFCheckBox, PDFSignature, PDFRadioGroup, PDFDropdown, PDFOptionList } from 'pdf-lib';
+import { PDFDocument, PDFTextField, PDFCheckBox, PDFSignature, PDFRadioGroup, PDFDropdown, PDFOptionList, PDFName } from 'pdf-lib';
 
 export const MASTER_SHA256 = '4681e7f98db75a78603b47758b2e1dc25016e3fae8f12d0f5ab2e8c3faf78df7';
 export const MASTER_PAGE_COUNT = 12;
@@ -110,7 +110,7 @@ export function copyFields(source, master) {
       if (selected.length) { output.select(selected); transferred++; }
     } else if (type === 'signature') {
       // Changing PDF bytes invalidates digital signatures. Never copy signed objects.
-      if (input.acroField.getValue()) warnings.push('Digital signature cannot be transferred: ' + name + '. Re-sign as required.');
+      if (input.acroField.dict.get(PDFName.of('V'))) warnings.push('Digital signature cannot be transferred: ' + name + '. Re-sign as required.');
     } else {
       throw new Error('Unsupported source field: ' + name);
     }
