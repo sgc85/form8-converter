@@ -5,7 +5,7 @@ test('PDF uploads are visible and the convert action explains missing master', a
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
 
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.locator('#appStatus')).toHaveText('Ready');
 
   const pdf = await PDFDocument.create();
@@ -39,7 +39,7 @@ test('PDF uploads are visible and the convert action explains missing master', a
 });
 
 test('PDF drop area accepts a file without a picker', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.locator('#appStatus')).toHaveText('Ready');
 
   await page.locator('#sourceDrop').evaluate(drop => {
