@@ -1,3 +1,4 @@
+import { PDFTextField, PDFCheckBox } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist/build/pdf.mjs';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { FORM8_FIELD_PAGES, FORM8_PAGE_ANCHORS } from './field-layout.js';
@@ -124,8 +125,8 @@ export async function extractFlattened(sourceBytes, destination) {
 
     // Always clear every sample entry in the supplied master, including checkboxes.
     for (const field of form.getFields()) {
-      if (field.constructor.name === 'PDFTextField') field.setText('');
-      if (field.constructor.name === 'PDFCheckBox') field.uncheck();
+      if (field instanceof PDFTextField) field.setText('');
+      if (field instanceof PDFCheckBox) field.uncheck();
     }
 
     for (let p = 0; p < 12; p++) {
