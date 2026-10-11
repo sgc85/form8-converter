@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "pdf-lib": "1.17.1",
-    "jszip": "3.10.1"
+    "jszip": "3.10.1",
+    "pdfjs-dist": "4.10.38"
   },
   "devDependencies": {
     "vite": "6.3.5",
