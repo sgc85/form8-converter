@@ -26,6 +26,10 @@ jobs:
         run: npm test
       - name: Build static website
         run: npm run build
+      - name: Install Chromium for upload smoke tests
+        run: npx playwright install --with-deps chromium
+      - name: Browser upload smoke tests
+        run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         with:
           name: compiled-site
