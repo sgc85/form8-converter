@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body>
+<script type="module">
+import { PDFDocument } from 'pdf-lib';
+import { extractFlattened } from '../src/flattened.js';
+window.runSynthetic = async (original, targetBytes) => {
+  const target = await PDFDocument.load(new Uint8Array(targetBytes));
+  const report = await extractFlattened(new Uint8Array(original), target);
+  const form = target.getForm();
+  return {
+    report,
+    candidate: form.getTextField('Text 50.Page 1').getText(),
+    evidence: form.getTextField('Text Field 2').getText(),
+    checked: form.getCheckBox('Check Box 50').isChecked(),
+    notChecked: form.getCheckBox('Check Box 51').isChecked()
+  };
+};
+</script>
+</body></html>
