@@ -3,67 +3,56 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src 'self' data: blob:; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' blob: data:; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex, nofollow">
-  <title>JCQ Form 8 Converter — Local Processing</title>
+  <title>Form 8 Converter</title>
 </head>
 <body>
 <main class="shell">
-  <header class="page-header">
+  <header class="heading">
     <div>
-      <div class="eyebrow">LOCAL PDF PROCESSING · NO AI</div>
-      <h1>JCQ Form 8 Converter</h1>
-      <p class="intro">Transfer completed Form 8 PDFs into the exact approved master form. Use one document or process a whole batch, without uploading pupil records.</p>
+      <h1>Form 8 Converter</h1>
+      <p>Convert one form or a whole batch.</p>
     </div>
-    <span class="version">Prototype</span>
+    <div class="privacy"><span class="privacy-dot"></span> Files stay in your browser</div>
   </header>
-  <section class="warning"><strong>For testing:</strong> The tool transfers form data mechanically, not SEND judgements. Visually verify every output in Adobe Acrobat before signing or using it for JCQ inspection. Digital signatures cannot be migrated.</section>
 
-  <section class="panel" aria-labelledby="masterHeading">
-    <div class="step"><span class="number">1</span><div><h2 id="masterHeading">Select your JCQ master form</h2>
-      <p>Choose the original <strong>Form 8 Master.pdf</strong> provided for this project. The converter checks its exact file fingerprint so it cannot quietly substitute a different form.</p></div>
+  <div id="appStatus" class="app-status" role="status">Starting converter…</div>
+
+  <section class="panel">
+    <div class="step"><span class="number">1</span><h2>Master form</h2></div>
+    <div id="masterDrop" class="dropzone" tabindex="0" aria-label="Drop the master PDF here">
+      <div class="file-icon" aria-hidden="true">▣</div>
+      <div class="drop-title">Drop your master PDF here</div>
+      <label for="masterFile">or choose a file</label>
+      <input id="masterFile" type="file" accept=".pdf,application/pdf" aria-label="Select master Form 8 PDF">
     </div>
-    <div class="control-line">
-      <label class="button primary" for="masterFile">Choose master PDF</label>
-      <input id="masterFile" type="file" accept=".pdf,application/pdf">
-      <span id="masterStatus" role="status" class="master-status">No master selected</span>
-    </div>
-    <p class="hint">The master includes sample staff details and is deliberately not published in the public repository. You select it locally each time; those sample entries are cleared in the generated copies.</p>
+    <div id="masterStatus" class="selection" role="status">No master selected</div>
   </section>
 
-  <section class="panel" aria-labelledby="sourceHeading">
-    <div class="step"><span class="number">2</span><div><h2 id="sourceHeading">Add completed original PDFs</h2>
-      <p>Drag in individual PDFs or select a batch. Each output retains its original filename.</p></div>
+  <section class="panel">
+    <div class="step"><span class="number">2</span><h2>Forms to convert</h2></div>
+    <div id="sourceDrop" class="dropzone" tabindex="0" aria-label="Drop completed PDFs here">
+      <div class="file-icon" aria-hidden="true">▤</div>
+      <div class="drop-title">Drop your completed PDFs here</div>
+      <label for="sourceFiles">or choose files</label>
+      <input id="sourceFiles" type="file" accept=".pdf,application/pdf" multiple aria-label="Select one or more completed PDFs">
     </div>
-    <div id="dropZone" class="dropzone" tabindex="0" role="button" aria-label="Choose PDF files or drop them here">
-      <div class="drop-icon" aria-hidden="true">⇧</div>
-      <strong>Drag and drop completed Form 8 PDFs</strong>
-      <span>or select PDFs from your device</span>
-      <label class="button primary" for="sourceFiles">Choose PDF files</label>
-      <input id="sourceFiles" type="file" accept=".pdf,application/pdf" multiple>
+    <div class="list-heading">
+      <span id="sourceCount" class="selection" role="status">No forms selected</span>
+      <button id="clearFiles" class="text-button" type="button">Clear</button>
     </div>
-    <div class="toolbar">
-      <button id="convertAll" type="button" disabled>Convert all pending</button>
-      <button id="downloadAll" class="secondary" type="button" disabled>Download completed ZIP</button>
-      <button id="clearFiles" class="quiet" type="button" disabled>Clear list</button>
-      <span class="hint" id="counts" role="status">No PDFs selected</span>
-    </div>
-    <div id="fileList" class="file-list" aria-live="polite"></div>
+    <div id="fileList" class="files" aria-live="polite"></div>
   </section>
 
-  <section class="panel" aria-labelledby="importantHeading">
-    <h2 id="importantHeading">Checks and limitations</h2>
-    <ul class="notes">
-      <li>Uses the exact <strong>12-page approved master PDF</strong> as the document backing. It does not recreate or redraw the form.</li>
-      <li>Rejects an original that does not have matching page sizes, PDF form field names, types, widget counts and positions.</li>
-      <li>Clears all prefilled master text and checkboxes before copying the originals, then opens the saved result again and verifies its field values.</li>
-      <li>Warns about missing Part 3 selections or declaration information and excessive narrative lengths. <strong>Field comparison cannot guarantee that long text prints without clipping.</strong></li>
-      <li>Preserves editable PDF fields. Cryptographic signatures cannot be copied safely; any typed assessor name or signature copied from the old form must be checked.</li>
-      <li>Runs on your device using browser JavaScript, with no document upload, server API, third-party CDN or analytics. Original PDFs and outputs remain in the browser tab until removed or the tab is closed.</li>
-    </ul>
+  <section class="bottom-panel">
+    <button id="convertAll" class="primary-button" type="button">Convert forms <span aria-hidden="true">→</span></button>
+    <button id="downloadAll" class="download-button" type="button" hidden>Download ZIP</button>
+    <div id="message" class="message" role="status">Select your master and completed forms to begin.</div>
   </section>
-  <footer>For internal prototype evaluation only. Do not put pupil files, completed PDFs or mapping documents in this public GitHub repository.</footer>
+  <footer>Review completed PDFs before use.</footer>
+  <noscript>JavaScript is required to convert PDFs.</noscript>
 </main>
 <script type="module" src="/src/main.js"></script>
 </body>
