@@ -121,7 +121,6 @@ export async function extractFlattened(sourceBytes, destination) {
     const missing = [];
     let populated = 0;
     let ticks = 0;
-    let readablePages = 0;
 
     // Always clear every sample entry in the supplied master, including checkboxes.
     for (const field of form.getFields()) {
@@ -139,12 +138,12 @@ export async function extractFlattened(sourceBytes, destination) {
       }
       const content = await page.getTextContent();
       const items = visibleTextItems(content, height);
+      if (items.length < 2) throw new Error('Page ' + (p+1) + ' has insufficient selectable text.');
       const plain = items.map(i => i.text).join(' ').replace(/\s+/g,' ').toLowerCase();
       const anchor = FORM8_PAGE_ANCHORS[p].toLowerCase();
       if (!plain.includes(anchor)) {
         throw new Error('Page '+ (p+1) +' does not match the expected JCQ Form 8 layout (' + FORM8_PAGE_ANCHORS[p] + ').');
       }
-      if (items.length > 15) readablePages++;
 
       const boxes = [];
       for (const name of FORM8_FIELD_PAGES[p]) {
@@ -180,7 +179,6 @@ export async function extractFlattened(sourceBytes, destination) {
       }
       page.cleanup();
     }
-    if (readablePages < 12) throw new Error('The PDF text is incomplete or not selectable.');
 
     if (missing.length) {
       throw new Error('Could not reliably extract: '+missing.join(', ')+'.');
