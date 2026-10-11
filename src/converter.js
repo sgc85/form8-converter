@@ -148,22 +148,41 @@ export async function convertForm(originalBytes, masterBytes) {
   await verifyMaster(masterBytes);
   const source = await PDFDocument.load(originalBytes);
   const master = await PDFDocument.load(masterBytes, { updateMetadata: false });
-  const errors = compareStructure(source, master, {
-    pages: MASTER_PAGE_COUNT, fields: MASTER_FIELD_COUNT, widgets: MASTER_WIDGET_COUNT
-  });
-  if (errors.length) throw new Error('Conversion blocked: ' + errors.join(' '));
 
-  const result = copyFields(source, master);
-  // Retain every static page from the authentic template and all its editable fields.
+  let result;
+  let method;
+  if (source.getForm().getFields().length === 0) {
+    // Explicitly no form fields: this is a flattened, text-based Form 8.
+    // Loading this module only for flattened PDFs avoids processing overhead
+    // for normal editable forms.
+    const { extractFlattened } = await import('./flattened.js');
+    result = await extractFlattened(originalBytes, master);
+    method = 'flattened';
+  } else {
+    const errors = compareStructure(source, master, {
+      pages: MASTER_PAGE_COUNT, fields: MASTER_FIELD_COUNT, widgets: MASTER_WIDGET_COUNT
+    });
+    if (errors.length) throw new Error('Conversion blocked: ' + errors.join(' '));
+    result = copyFields(source, master);
+    method = 'fillable';
+  }
+
+  const originalValues = new Map(master.getForm().getFields()
+    .filter(field => kind(field) !== 'signature')
+    .map(field => [field.getName(), value(field)]));
   master.getForm().updateFieldAppearances();
   const bytes = await master.save({ useObjectStreams: false, updateFieldAppearances: false });
   const saved = await PDFDocument.load(bytes);
-  for (const field of source.getForm().getFields()) {
-    if (kind(field) === 'signature') continue;
-    if (JSON.stringify(value(field)) !== JSON.stringify(value(saved.getForm().getField(field.getName())))) {
-      throw new Error('Output verification failed: ' + field.getName());
+  for (const [name, expected] of originalValues) {
+    const actual = saved.getForm().getField(name);
+    if (JSON.stringify(expected) !== JSON.stringify(value(actual))) {
+      throw new Error('Output verification failed: ' + name);
     }
   }
-  if (saved.getPageCount() !== MASTER_PAGE_COUNT) throw new Error('Output page count changed.');
-  return { bytes, ...result };
+  if (saved.getPageCount() !== MASTER_PAGE_COUNT ||
+      saved.getForm().getFields().length !== MASTER_FIELD_COUNT) {
+    throw new Error('Output structure changed.');
+  }
+
+  return { bytes, ...result, method };
 }
